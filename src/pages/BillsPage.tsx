@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../services/api.js';
+import { api, getBillDownloadUrl } from '../services/api.js';
 import { Modal } from '../components/Modal.js';
 import { useToast } from '../contexts/ToastContext.js';
 import {
@@ -672,9 +672,9 @@ export const BillsPage: React.FC<BillsPageProps> = ({
                 </a>
 
                 {/* Download PDF Button */}
-                {selectedBill.pdf_local_path && (
+                {(selectedBill.bill_number || selectedBill.pdf_local_path) && (
                   <a
-                    href={selectedBill.pdf_local_path}
+                    href={selectedBill.bill_number ? getBillDownloadUrl(selectedBill.bill_number) : selectedBill.pdf_local_path}
                     download
                     target="_blank"
                     rel="noopener noreferrer"

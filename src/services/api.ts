@@ -1,4 +1,14 @@
-const API_BASE = '/api';
+export const BACKEND_URL = (
+  import.meta.env.VITE_BACKEND_URL ||
+  import.meta.env.VITE_API_URL ||
+  ''
+).replace(/\/+$/, '');
+
+export const API_BASE = BACKEND_URL ? `${BACKEND_URL}/api` : '/api';
+
+export function getBillDownloadUrl(billNumber: string): string {
+  return `${BACKEND_URL}/bill/${encodeURIComponent(billNumber)}`;
+}
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('ss_token');
