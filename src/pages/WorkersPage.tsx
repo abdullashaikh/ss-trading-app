@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
 import { Modal } from '../components/Modal.js';
 import { useToast } from '../contexts/ToastContext.js';
-import { Plus, Users, Search, BookOpen, CreditCard, Phone, Calendar, Loader2 } from 'lucide-react';
+import { Plus, Users, Search, BookOpen, CreditCard, Phone, Calendar, Loader2, Edit, Trash2, AlertTriangle } from 'lucide-react';
 
 interface WorkersPageProps {
   isAddPaymentOpen?: boolean;
@@ -19,6 +19,12 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
 
   // Modals
   const [addWorkerModalOpen, setAddWorkerModalOpen] = useState(false);
+  const [editingWorker, setEditingWorker] = useState<any>(null);
+  const [deleteConfirmWorker, setDeleteConfirmWorker] = useState<any>(null);
+  const [deleteConfirmPayment, setDeleteConfirmPayment] = useState<any>(null);
+  const [isDeletingWorker, setIsDeletingWorker] = useState(false);
+  const [isDeletingPayment, setIsDeletingPayment] = useState(false);
+
   const [internalPayOpen, setInternalPayOpen] = useState(false);
   const isPayOpen = externalOpen !== undefined ? externalOpen : internalPayOpen;
   const setIsPayOpen = setExternalOpen || setInternalPayOpen;
@@ -33,7 +39,7 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
   const toast = useToast();
 
-  // Add Worker Form
+  // Add/Edit Worker Form
   const [workerForm, setWorkerForm] = useState({
     worker_name: '',
     mobile: '',
@@ -70,26 +76,77 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
     loadWorkers();
   }, [search]);
 
+  const handleOpenEditWorker = (worker: any) => {
+    setEditingWorker(worker);
+    setWorkerForm({
+      worker_name: worker.worker_name,
+      mobile: worker.mobile || '',
+      role: worker.role || 'Worker',
+      opening_balance: (worker.opening_balance || 0).toString(),
+      notes: worker.notes || ''
+    });
+    setAddWorkerModalOpen(true);
+  };
+
+  const handleCloseWorkerModal = () => {
+    setAddWorkerModalOpen(false);
+    setEditingWorker(null);
+    setWorkerForm({ worker_name: '', mobile: '', role: 'Worker', opening_balance: '0', notes: '' });
+  };
+
   const handleSaveWorker = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!workerForm.worker_name) return;
     setIsSubmittingWorker(true);
     try {
       await api.saveWorker({
+        worker_id: editingWorker ? editingWorker.worker_id : 0,
         worker_name: workerForm.worker_name,
         mobile: workerForm.mobile,
         role: workerForm.role,
         opening_balance: parseFloat(workerForm.opening_balance) || 0,
         notes: workerForm.notes
       });
-      setAddWorkerModalOpen(false);
-      setWorkerForm({ worker_name: '', mobile: '', role: 'Worker', opening_balance: '0', notes: '' });
-      toast.success('Worker added successfully!');
+      handleCloseWorkerModal();
+      toast.success(editingWorker ? 'Worker updated successfully!' : 'Worker added successfully!');
       loadWorkers();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to add worker');
+      toast.error(err.message || 'Failed to save worker');
     } finally {
       setIsSubmittingWorker(false);
+    }
+  };
+
+  const handleDeleteWorker = async () => {
+    if (!deleteConfirmWorker) return;
+    setIsDeletingWorker(true);
+    try {
+      await api.deleteWorker(deleteConfirmWorker.worker_id);
+      toast.success('Worker deleted successfully');
+      setDeleteConfirmWorker(null);
+      loadWorkers();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete worker');
+    } finally {
+      setIsDeletingWorker(false);
+    }
+  };
+
+  const handleDeletePayment = async () => {
+    if (!deleteConfirmPayment) return;
+    setIsDeletingPayment(true);
+    try {
+      await api.deleteWorkerPayment(deleteConfirmPayment.worker_payment_id);
+      toast.success('Worker payment deleted successfully');
+      setDeleteConfirmPayment(null);
+      if (ledgerWorker) {
+        loadLedger(ledgerWorker);
+      }
+      loadWorkers();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete worker payment');
+    } finally {
+      setIsDeletingPayment(false);
     }
   };
 
@@ -203,12 +260,30 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
           >
             <div className="space-y-1.5">
               <div className="flex items-start justify-between">
-                <h3 className="font-bold text-gray-900 text-base">{w.worker_name}</h3>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                  w.role === 'Driver' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                }`}>
-                  {w.role}
-                </span>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-base">{w.worker_name}</h3>
+                  <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    w.role === 'Driver' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  }`}>
+                    {w.role}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleOpenEditWorker(w)}
+                    title="Edit Worker"
+                    className="p-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmWorker(w)}
+                    title="Delete Worker"
+                    className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               {w.mobile && (
                 <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
@@ -320,6 +395,7 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
                   <th className="py-2.5 px-3">Payment Type</th>
                   <th className="py-2.5 px-3">Trip / Vehicle / Notes</th>
                   <th className="py-2.5 px-3 text-right">Amount (₹)</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -341,11 +417,20 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
                       <td className="py-2 px-3 text-right font-bold text-gray-900">
                         {formatCurrency(h.amount)}
                       </td>
+                      <td className="py-2 px-3 text-right">
+                        <button
+                          onClick={() => setDeleteConfirmPayment(h)}
+                          title="Delete Wage Payment"
+                          className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="py-6 text-center text-gray-400">No payment records found</td>
+                    <td colSpan={5} className="py-6 text-center text-gray-400">No payment records found</td>
                   </tr>
                 )}
               </tbody>
@@ -354,11 +439,11 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
         </div>
       </Modal>
 
-      {/* Add Worker Modal */}
+      {/* Add / Edit Worker Modal */}
       <Modal
         isOpen={addWorkerModalOpen}
-        onClose={() => setAddWorkerModalOpen(false)}
-        title="Add New Daily Wage Worker"
+        onClose={handleCloseWorkerModal}
+        title={editingWorker ? `Edit Worker — ${editingWorker.worker_name}` : 'Add New Daily Wage Worker'}
       >
         <form onSubmit={handleSaveWorker} className="space-y-4">
           <div>
@@ -426,7 +511,7 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
           <div className="pt-2 flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setAddWorkerModalOpen(false)}
+              onClick={handleCloseWorkerModal}
               className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -437,7 +522,7 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
               className="px-5 py-2 bg-brand-700 text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-800 disabled:opacity-60 flex items-center gap-2"
             >
               {isSubmittingWorker && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isSubmittingWorker ? 'Saving Worker...' : 'Save Worker'}</span>
+              <span>{isSubmittingWorker ? 'Saving Worker...' : (editingWorker ? 'Update Worker' : 'Save Worker')}</span>
             </button>
           </div>
         </form>
@@ -537,6 +622,70 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Delete Worker Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmWorker}
+        onClose={() => setDeleteConfirmWorker(null)}
+        title="Delete Worker"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to delete worker <strong>{deleteConfirmWorker?.worker_name}</strong> ({deleteConfirmWorker?.role})?
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmWorker(null)}
+              className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingWorker}
+              onClick={handleDeleteWorker}
+              className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-60 flex items-center gap-2"
+            >
+              {isDeletingWorker && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{isDeletingWorker ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Worker Payment Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmPayment}
+        onClose={() => setDeleteConfirmPayment(null)}
+        title="Delete Wage Payment"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to delete this <strong>{deleteConfirmPayment?.payment_type}</strong> payment of <strong>{formatCurrency(deleteConfirmPayment?.amount)}</strong> on <strong>{deleteConfirmPayment?.payment_date}</strong>?
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmPayment(null)}
+              className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingPayment}
+              onClick={handleDeletePayment}
+              className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-60 flex items-center gap-2"
+            >
+              {isDeletingPayment && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{isDeletingPayment ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

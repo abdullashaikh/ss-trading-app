@@ -3,7 +3,7 @@ import { api } from '../services/api.js';
 import { Modal } from '../components/Modal.js';
 import { useToast } from '../contexts/ToastContext.js';
 import { BoxGrid, BoxItem, SelectedBoxData } from '../components/BoxGrid.js';
-import { Truck, Calendar, User, Package, ArrowRight, CheckCircle2, Receipt, Loader2 } from 'lucide-react';
+import { Truck, Calendar, User, Package, ArrowRight, CheckCircle2, Receipt, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 
 interface DeliveryPageProps {
   onConvertToBill?: (deliveryData: any) => void;
@@ -25,7 +25,10 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
   const [isLoadingBoxes, setIsLoadingBoxes] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingBillPrompt, setPendingBillPrompt] = useState<any>(null);
+  const [deleteConfirmDelivery, setDeleteConfirmDelivery] = useState<any>(null);
+  const [isDeletingDelivery, setIsDeletingDelivery] = useState(false);
   const toast = useToast();
+
 
   // Load trucks and customers
   useEffect(() => {
@@ -165,6 +168,41 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
     }
   };
 
+  const handleDeleteDelivery = async () => {
+    if (!deleteConfirmDelivery) return;
+    setIsDeletingDelivery(true);
+    try {
+      await api.deleteDelivery(deleteConfirmDelivery.delivery_id);
+      toast.success('Delivery and allocated crates removed successfully!');
+      setDeleteConfirmDelivery(null);
+      loadRecentDeliveries();
+      // Reload boxes for current truck to show crates freed
+      if (selectedTruckId && deliveryDate) {
+        api.getTruckBoxes(parseInt(selectedTruckId, 10), deliveryDate)
+          .then((res) => setBoxes(res.data || []))
+          .catch(console.error);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete delivery');
+    } finally {
+      setIsDeletingDelivery(false);
+    }
+  };
+
+  const handleConvertRecentToBill = (del: any) => {
+    if (onConvertToBill) {
+      onConvertToBill({
+        delivery_id: del.delivery_id,
+        delivery_date: del.delivery_date,
+        customer_id: del.customer_id,
+        truck_id: del.truck_id,
+        customer_name: del.customer_name,
+        truck_info: `${del.truck_name || ''} (${del.truck_number || ''})`,
+        items: [] // Will be populated by backend or bill form
+      });
+    }
+  };
+
   const selectedCustomer = customers.find((c) => c.customer_id === parseInt(selectedCustomerId, 10));
   const formatCurrency = (val: any) =>
     `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -226,7 +264,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
             >
               {customers.map((c) => (
                 <option key={c.customer_id} value={c.customer_id}>
-                  {c.customer_name} {c.cr_br ? `(${c.cr_br})` : ''}
+                  {c.customer_name}
                 </option>
               ))}
             </select>
@@ -239,11 +277,6 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
             <div className="flex items-center gap-3">
               <span className="font-bold text-gray-900">{selectedCustomer.customer_name}</span>
               <span className="text-gray-500">Phone: {selectedCustomer.mobile_number}</span>
-              {selectedCustomer.cr_br && (
-                <span className="font-semibold text-brand-700 bg-white px-2 py-0.5 rounded border border-brand-200">
-                  CR/BR: {selectedCustomer.cr_br}
-                </span>
-              )}
             </div>
             <div className="text-right">
               <span className="text-gray-500">Previous Pending Balance: </span>
@@ -316,7 +349,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
         )}
       </div>
 
-      {/* Recent Deliveries List */}
+      {/* Recent Deliveries List with Actions */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
         <h2 className="text-sm font-bold text-gray-900">Recent Customer Deliveries</h2>
         <div className="overflow-x-auto">
@@ -329,7 +362,8 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
                 <th className="py-2.5 px-3">Boxes</th>
                 <th className="py-2.5 px-3">Weight (KG)</th>
                 <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3 text-right">Status</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -341,12 +375,33 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
                   <td className="py-2.5 px-3 font-semibold">{del.total_boxes} Crate(s) ({del.total_qty} Birds)</td>
                   <td className="py-2.5 px-3 font-semibold">{del.total_kg} KG</td>
                   <td className="py-2.5 px-3 font-bold text-gray-900">{formatCurrency(del.total_amount)}</td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="py-2.5 px-3">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                       del.status === 'BILLED' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
                     }`}>
                       {del.status}
                     </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {del.status !== 'BILLED' && onConvertToBill && (
+                        <button
+                          onClick={() => handleConvertRecentToBill(del)}
+                          title="Generate Bill"
+                          className="px-2 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-lg font-bold text-[10px] flex items-center gap-1"
+                        >
+                          <Receipt className="w-3 h-3" />
+                          <span>Bill</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setDeleteConfirmDelivery(del)}
+                        title="Delete Delivery & Free Crate Slots"
+                        className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -389,6 +444,39 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
           </div>
         </div>
       </Modal>
+
+      {/* Delete Delivery Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmDelivery}
+        onClose={() => setDeleteConfirmDelivery(null)}
+        title="Delete Delivery"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to delete the delivery for <strong>{deleteConfirmDelivery?.customer_name}</strong> on <strong>{deleteConfirmDelivery?.delivery_date}</strong>?
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmDelivery(null)}
+              className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingDelivery}
+              onClick={handleDeleteDelivery}
+              className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-60 flex items-center gap-2"
+            >
+              {isDeletingDelivery && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{isDeletingDelivery ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
+

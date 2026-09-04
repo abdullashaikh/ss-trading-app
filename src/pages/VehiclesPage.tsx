@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
 import { Modal } from '../components/Modal.js';
 import { useToast } from '../contexts/ToastContext.js';
-import { Plus, Truck, Calendar, UserCheck, Wrench, Fuel, Users, BarChart2, Loader2 } from 'lucide-react';
+import { Plus, Truck, Calendar, UserCheck, Wrench, Fuel, Users, BarChart2, Loader2, Edit, Trash2, AlertTriangle } from 'lucide-react';
 
 interface VehiclesPageProps {
   isAddEntryOpen?: boolean;
@@ -26,18 +26,24 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
   const setIsAddEntryOpen = setExternalOpen || setInternalAddOpen;
 
   const [addVehicleModalOpen, setAddVehicleModalOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  const [deleteConfirmVehicle, setDeleteConfirmVehicle] = useState<any>(null);
+  const [deleteConfirmEntry, setDeleteConfirmEntry] = useState<any>(null);
+  const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
+  const [isDeletingEntry, setIsDeletingEntry] = useState(false);
   const [viewEntryDetails, setViewEntryDetails] = useState<any>(null);
 
   const [isSubmittingVehicle, setIsSubmittingVehicle] = useState(false);
   const [isSubmittingEntry, setIsSubmittingEntry] = useState(false);
   const toast = useToast();
 
-  // Add Vehicle Form
+  // Add/Edit Vehicle Form
   const [vehicleForm, setVehicleForm] = useState({
     vehicle_number: '',
     vehicle_name: '',
     notes: ''
   });
+
 
   // Vehicle Daily Entry Form
   const [entryForm, setEntryForm] = useState({
@@ -79,20 +85,93 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
     loadData();
   }, []);
 
+  const handleOpenEditVehicle = (vehicle: any) => {
+    setEditingVehicle(vehicle);
+    setVehicleForm({
+      vehicle_number: vehicle.vehicle_number,
+      vehicle_name: vehicle.vehicle_name,
+      notes: vehicle.notes || ''
+    });
+    setAddVehicleModalOpen(true);
+  };
+
+  const handleCloseVehicleModal = () => {
+    setAddVehicleModalOpen(false);
+    setEditingVehicle(null);
+    setVehicleForm({ vehicle_number: '', vehicle_name: '', notes: '' });
+  };
+
   const handleSaveVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!vehicleForm.vehicle_number || !vehicleForm.vehicle_name) return;
     setIsSubmittingVehicle(true);
     try {
-      await api.saveVehicle(vehicleForm);
-      setAddVehicleModalOpen(false);
-      setVehicleForm({ vehicle_number: '', vehicle_name: '', notes: '' });
-      toast.success('Vehicle added successfully!');
+      await api.saveVehicle({
+        vehicle_id: editingVehicle ? editingVehicle.vehicle_id : 0,
+        ...vehicleForm
+      });
+      handleCloseVehicleModal();
+      toast.success(editingVehicle ? 'Vehicle updated successfully!' : 'Vehicle added successfully!');
       loadData();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save vehicle');
     } finally {
       setIsSubmittingVehicle(false);
+    }
+  };
+
+  const handleDeleteVehicle = async () => {
+    if (!deleteConfirmVehicle) return;
+    setIsDeletingVehicle(true);
+    try {
+      await api.deleteVehicle(deleteConfirmVehicle.vehicle_id);
+      toast.success('Vehicle deleted successfully');
+      setDeleteConfirmVehicle(null);
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete vehicle');
+    } finally {
+      setIsDeletingVehicle(false);
+    }
+  };
+
+  const handleOpenEditEntry = async (ent: any) => {
+    try {
+      const res = await api.getVehicleEntryById(ent.vehicle_daily_entry_id);
+      const data = res.data;
+      setEntryForm({
+        vehicle_daily_entry_id: data.vehicle_daily_entry_id,
+        entry_date: data.entry_date ? new Date(data.entry_date).toISOString().split('T')[0] : ent.entry_date,
+        vehicle_id: data.vehicle_id ? data.vehicle_id.toString() : '',
+        driver_worker_id: data.driver_worker_id ? data.driver_worker_id.toString() : '',
+        diesel_amount: data.diesel_amount ? data.diesel_amount.toString() : '',
+        maintenance_amount: data.maintenance_amount ? data.maintenance_amount.toString() : '',
+        other_expense: data.other_expense ? data.other_expense.toString() : '',
+        notes: data.notes || '',
+        worker_payments: (data.workers || []).map((w: any) => ({
+          worker_id: w.worker_id,
+          worker_name: w.worker_name,
+          amount: Number(w.amount) || 0
+        }))
+      });
+      setIsAddEntryOpen(true);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load trip details for editing');
+    }
+  };
+
+  const handleDeleteEntry = async () => {
+    if (!deleteConfirmEntry) return;
+    setIsDeletingEntry(true);
+    try {
+      await api.deleteVehicleEntry(deleteConfirmEntry.vehicle_daily_entry_id);
+      toast.success('Trip entry deleted successfully');
+      setDeleteConfirmEntry(null);
+      loadData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete trip entry');
+    } finally {
+      setIsDeletingEntry(false);
     }
   };
 
@@ -265,7 +344,7 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
                   <th className="py-3 px-4">Maintenance (₹)</th>
                   <th className="py-3 px-4">Worker Pay (₹)</th>
                   <th className="py-3 px-4">Total Expense</th>
-                  <th className="py-3 px-4 text-right">Details</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -285,12 +364,29 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
                         {formatCurrency(ent.total_daily_expense)}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleViewEntry(ent.vehicle_daily_entry_id)}
-                          className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-[11px]"
-                        >
-                          View
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleViewEntry(ent.vehicle_daily_entry_id)}
+                            title="View Details"
+                            className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-[11px]"
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleOpenEditEntry(ent)}
+                            title="Edit Trip Entry"
+                            className="p-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirmEntry(ent)}
+                            title="Delete Trip Entry"
+                            className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -352,7 +448,23 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
             <div key={v.vehicle_id} className="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="font-extrabold text-gray-900 text-base">{v.vehicle_number}</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>
+                  <button
+                    onClick={() => handleOpenEditVehicle(v)}
+                    title="Edit Vehicle"
+                    className="p-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmVehicle(v)}
+                    title="Delete Vehicle"
+                    className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               <p className="text-xs text-gray-600 font-medium">{v.vehicle_name}</p>
               {v.notes && <p className="text-[11px] text-gray-400 italic">{v.notes}</p>}
@@ -364,8 +476,21 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
       {/* Daily Vehicle Entry Modal */}
       <Modal
         isOpen={isAddEntryOpen}
-        onClose={() => setIsAddEntryOpen(false)}
-        title="Record Daily Vehicle Trip & Worker Wages"
+        onClose={() => {
+          setIsAddEntryOpen(false);
+          setEntryForm({
+            vehicle_daily_entry_id: 0,
+            entry_date: new Date().toISOString().split('T')[0],
+            vehicle_id: vehicles[0]?.vehicle_id?.toString() || '',
+            driver_worker_id: '',
+            diesel_amount: '',
+            maintenance_amount: '',
+            other_expense: '',
+            notes: '',
+            worker_payments: []
+          });
+        }}
+        title={entryForm.vehicle_daily_entry_id ? 'Edit Daily Vehicle Trip & Worker Wages' : 'Record Daily Vehicle Trip & Worker Wages'}
         maxWidth="max-w-2xl"
       >
         <form onSubmit={handleSaveEntry} className="space-y-4">
@@ -546,7 +671,20 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
           <div className="pt-2 flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setIsAddEntryOpen(false)}
+              onClick={() => {
+                setIsAddEntryOpen(false);
+                setEntryForm({
+                  vehicle_daily_entry_id: 0,
+                  entry_date: new Date().toISOString().split('T')[0],
+                  vehicle_id: vehicles[0]?.vehicle_id?.toString() || '',
+                  driver_worker_id: '',
+                  diesel_amount: '',
+                  maintenance_amount: '',
+                  other_expense: '',
+                  notes: '',
+                  worker_payments: []
+                });
+              }}
               className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -557,17 +695,17 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
               className="px-5 py-2 bg-brand-700 text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-800 disabled:opacity-60 flex items-center gap-2"
             >
               {isSubmittingEntry && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isSubmittingEntry ? 'Saving Entry...' : 'Save Vehicle Entry'}</span>
+              <span>{isSubmittingEntry ? 'Saving Entry...' : (entryForm.vehicle_daily_entry_id ? 'Update Trip Entry' : 'Save Vehicle Entry')}</span>
             </button>
           </div>
         </form>
       </Modal>
 
-      {/* Add Vehicle Master Modal */}
+      {/* Add / Edit Vehicle Master Modal */}
       <Modal
         isOpen={addVehicleModalOpen}
-        onClose={() => setAddVehicleModalOpen(false)}
-        title="Register New Vehicle"
+        onClose={handleCloseVehicleModal}
+        title={editingVehicle ? `Edit Vehicle — ${editingVehicle.vehicle_number}` : 'Register New Vehicle'}
       >
         <form onSubmit={handleSaveVehicle} className="space-y-4">
           <div>
@@ -608,7 +746,7 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
           <div className="pt-2 flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setAddVehicleModalOpen(false)}
+              onClick={handleCloseVehicleModal}
               className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -619,7 +757,7 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
               className="px-5 py-2 bg-brand-700 text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-800 disabled:opacity-60 flex items-center gap-2"
             >
               {isSubmittingVehicle && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{isSubmittingVehicle ? 'Saving Vehicle...' : 'Save Vehicle'}</span>
+              <span>{isSubmittingVehicle ? 'Saving Vehicle...' : (editingVehicle ? 'Update Vehicle' : 'Save Vehicle')}</span>
             </button>
           </div>
         </form>
@@ -675,6 +813,70 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
             )}
           </div>
         )}
+      </Modal>
+
+      {/* Delete Vehicle Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmVehicle}
+        onClose={() => setDeleteConfirmVehicle(null)}
+        title="Delete Vehicle"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to delete vehicle <strong>{deleteConfirmVehicle?.vehicle_number}</strong> ({deleteConfirmVehicle?.vehicle_name})?
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmVehicle(null)}
+              className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingVehicle}
+              onClick={handleDeleteVehicle}
+              className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-60 flex items-center gap-2"
+            >
+              {isDeletingVehicle && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{isDeletingVehicle ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Vehicle Daily Entry Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmEntry}
+        onClose={() => setDeleteConfirmEntry(null)}
+        title="Delete Trip Entry"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-700">
+            Are you sure you want to delete trip entry for <strong>{deleteConfirmEntry?.vehicle_number}</strong> on <strong>{deleteConfirmEntry?.entry_date}</strong> (Total Expense: {formatCurrency(deleteConfirmEntry?.total_daily_expense)})?
+          </p>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmEntry(null)}
+              className="px-4 py-2 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isDeletingEntry}
+              onClick={handleDeleteEntry}
+              className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold shadow-md disabled:opacity-60 flex items-center gap-2"
+            >
+              {isDeletingEntry && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{isDeletingEntry ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
