@@ -82,7 +82,7 @@ export function generateWhatsAppBillShare(bill: {
     '',
     `Your SS Trading invoice *#${bill.bill_number}* is ready.`,
     '──────────────────',
-    `📦 *Total Birds (કુલ મરઘા):* ${totalBirds}`,
+    `📦 *Total Qty (કુલ નંગ):* ${totalBirds}`,
     `⚖️ *Total Weight (કુલ વજન):* ${totalKg} KG`,
     `💰 *Bill Amount (બિલ રકમ):* ₹${totalAmount}`,
     `💳 *Amount Paid (ચૂકવેલ રકમ):* ₹${amountPaid}`,

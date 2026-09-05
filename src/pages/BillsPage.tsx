@@ -744,11 +744,11 @@ export const BillsPage: React.FC<BillsPageProps> = ({
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-gray-100 text-gray-700 font-semibold">
                   <tr>
-                    <th className="py-2 px-3">Crate #</th>
-                    <th className="py-2 px-3">Birds Qty</th>
-                    <th className="py-2 px-3">Weight (KG)</th>
-                    <th className="py-2 px-3">Rate / KG (₹)</th>
-                    <th className="py-2 px-3">Amount (₹)</th>
+                    <th className="py-2 px-3">Crate # (બોક્સ નં)</th>
+                    <th className="py-2 px-3">Birds Qty (મરઘા)</th>
+                    <th className="py-2 px-3">Weight (KG/વજન)</th>
+                    <th className="py-2 px-3">Rate / KG (ભાવ/₹)</th>
+                    <th className="py-2 px-3">Amount (રકમ/₹)</th>
                     <th className="py-2 px-3 text-right">Action</th>
                   </tr>
                 </thead>
@@ -817,7 +817,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
               {/* 1. Weight & Birds */}
               <div className="p-2.5 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                <span className="text-gray-500 block font-semibold text-[11px]">Total Weight & Birds</span>
+                <span className="text-gray-500 block font-semibold text-[11px]">Total Weight & Birds (કુલ વજન અને મરઘા)</span>
                 <strong className="text-sm font-extrabold text-gray-900 block mt-0.5">
                   {totalKg.toFixed(2)} KG
                 </strong>
@@ -826,7 +826,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
 
               {/* 2. Previous Due / Balance (BEFORE current amount) */}
               <div className="p-2.5 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                <span className="text-gray-500 block font-semibold text-[11px]">Previous Due</span>
+                <span className="text-gray-500 block font-semibold text-[11px]">Previous Due (અગાઉની બાકી)</span>
                 <strong className={`text-sm font-extrabold block mt-0.5 ${
                   billForm.previous_pending < 0 ? 'text-blue-600' : billForm.previous_pending > 0 ? 'text-rose-600' : 'text-gray-700'
                 }`}>
@@ -839,7 +839,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
 
               {/* 3. Current Bill Amount */}
               <div className="p-2.5 bg-white rounded-xl border border-gray-200 shadow-2xs">
-                <span className="text-gray-500 block font-semibold text-[11px]">(+) Current Bill</span>
+                <span className="text-gray-500 block font-semibold text-[11px]">(+) Current Bill (હાલનું બિલ)</span>
                 <strong className="text-sm font-black text-gray-900 block mt-0.5">
                   {formatCurrency(currentBillAmount)}
                 </strong>
@@ -848,7 +848,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
 
               {/* 4. Total Net Due */}
               <div className="p-2.5 bg-brand-50/70 rounded-xl border border-brand-200 shadow-2xs">
-                <span className="text-brand-700 block font-bold text-[11px]">(=) Total Net Due</span>
+                <span className="text-brand-700 block font-bold text-[11px]">(=) Total Net Due (કુલ બાકી)</span>
                 <strong className="text-sm font-black text-brand-800 block mt-0.5">
                   {formatCurrency(totalDueAmount)}
                 </strong>
@@ -857,7 +857,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
 
               {/* 5. Amount Paid Now Input */}
               <div className="p-2.5 bg-white rounded-xl border border-emerald-300 shadow-2xs col-span-2 sm:col-span-1">
-                <label className="block text-emerald-800 font-bold mb-1 text-[11px]">(-) Amount Paid (₹)</label>
+                <label className="block text-emerald-800 font-bold mb-1 text-[11px]">(-) Amount Paid (ચૂકવેલ રકમ/₹)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -879,7 +879,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-xs text-gray-700">Remaining Pending Due:</span>
+                <span className="font-bold text-xs text-gray-700">Remaining Pending Due (અંતિમ બાકી):</span>
                 <strong className="text-base font-black text-rose-600">
                   {formatCurrency(finalPendingAmount)}
                 </strong>
