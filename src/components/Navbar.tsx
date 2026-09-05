@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.js';
+import { usePWA } from '../hooks/usePWA.js';
 import {
   LogOut,
   User as UserIcon,
@@ -14,7 +15,8 @@ import {
   Truck,
   UserCheck,
   BarChart3,
-  ChevronRight
+  ChevronRight,
+  Download
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -31,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setIsMobileMenuOpen: setExternalMenuOpen
 }) => {
   const { user, logout } = useAuth();
+  const { canInstall, installApp } = usePWA();
   const [internalMenuOpen, setInternalMenuOpen] = useState(false);
 
   const isMenuOpen = externalMenuOpen !== undefined ? externalMenuOpen : internalMenuOpen;
@@ -41,11 +44,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'purchases', label: 'Purchases', sublabel: 'Poultry Inward & Lots', icon: ShoppingCart },
     { id: 'companies', label: 'Suppliers', sublabel: 'Poultry Companies', icon: Building2 },
     { id: 'customers', label: 'Customers', sublabel: 'Party Outstanding & Ledger', icon: Users },
-    { id: 'delivery', label: 'Box Allocation', sublabel: 'Dispatch Crate Distribution', icon: Package },
-    { id: 'bills', label: 'Bills & Invoices', sublabel: 'GST/Retail Billing & WhatsApp', icon: Receipt },
-    { id: 'vehicles', label: 'Vehicle Entry', sublabel: 'Diesel, Driver & Maintenance', icon: Truck, highlight: true },
-    { id: 'workers', label: 'Workers', sublabel: 'Wages, Advance & Attendance', icon: UserCheck },
-    { id: 'reports', label: 'Reports', sublabel: 'Financial & Profit Statements', icon: BarChart3 },
+    { id: 'delivery', label: 'Truck Matrix (108)', sublabel: 'Crate Allocation & Dispatch', icon: Package, highlight: true },
+    { id: 'bills', label: 'Customer Bills', sublabel: 'Billing, Invoices & Balance', icon: Receipt },
+    { id: 'vehicles', label: 'Vehicles', sublabel: 'Daily Expenses & Trips', icon: Truck },
+    { id: 'workers', label: 'Workers', sublabel: 'Daily Wages & Advances', icon: UserCheck },
+    { id: 'reports', label: 'Reports', sublabel: 'Profit & Loss / Audits', icon: BarChart3 },
   ];
 
   const handleSelectTab = (tabId: string) => {
@@ -55,11 +58,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6">
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Left: Mobile Hamburger & Brand Logo */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            {/* Left Brand & Mobile Menu Toggle */}
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -99,7 +102,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onClick={() => handleSelectTab(item.id)}
                     className={`px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
                       isActive
-                        ? 'bg-brand-700 text-white shadow-sm'
+                        ? 'bg-brand-700 text-white shadow-2xs'
+                        : item.highlight
+                        ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80 font-bold'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
@@ -109,8 +114,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               })}
             </nav>
 
-            {/* User Profile & Logout */}
+            {/* User Profile, Install & Logout */}
             <div className="flex items-center gap-2 sm:gap-3">
+              {canInstall && (
+                <button
+                  onClick={installApp}
+                  title="Install SS Trading App"
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 rounded-xl text-xs font-bold transition-all active:scale-95 shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5 text-brand-700" />
+                  <span>Install App</span>
+                </button>
+              )}
+
               <div className="hidden sm:flex items-center gap-2 text-right">
                 <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-sm border border-gray-200">
                   <UserIcon className="w-4 h-4" />
@@ -165,6 +181,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Mobile PWA Install Banner */}
+            {canInstall && (
+              <div className="p-3 border-b border-gray-100 bg-brand-50/70">
+                <button
+                  type="button"
+                  onClick={() => {
+                    installApp();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-2.5 bg-brand-700 hover:bg-brand-800 active:scale-95 text-white rounded-xl shadow-sm text-xs font-bold transition-all"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Download className="w-4 h-4" />
+                    <span>Install SS Trading App</span>
+                  </div>
+                  <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md uppercase font-semibold">
+                    Install
+                  </span>
+                </button>
+              </div>
+            )}
 
             {/* Navigation List */}
             <div className="flex-1 overflow-y-auto overscroll-contain p-3 space-y-1">

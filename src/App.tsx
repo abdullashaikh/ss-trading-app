@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext.js';
 import { ToastProvider } from './contexts/ToastContext.js';
+import { usePWA } from './hooks/usePWA.js';
+import { WifiOff } from 'lucide-react';
 import { LoginPage } from './pages/LoginPage.js';
 import { Navbar } from './components/Navbar.js';
 import { BottomNav } from './components/BottomNav.js';
@@ -17,6 +19,7 @@ import { ReportsPage } from './pages/ReportsPage.js';
 
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isOnline } = usePWA();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -57,6 +60,13 @@ const MainLayout: React.FC = () => {
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
       />
+
+      {!isOnline && (
+        <div className="bg-amber-600 text-white px-4 py-2 text-xs font-bold flex items-center justify-center gap-2 text-center shadow-xs">
+          <WifiOff className="w-4 h-4 shrink-0" />
+          <span>You are currently offline. New records, billing, and live data require an active internet connection.</span>
+        </div>
+      )}
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pb-24 md:pb-8">
         {activeTab === 'dashboard' && (
