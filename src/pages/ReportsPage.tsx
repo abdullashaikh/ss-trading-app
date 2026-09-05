@@ -120,23 +120,23 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         {filterMode === 'custom' && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs w-full min-w-0">
             <input
               type="date"
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
-              className="px-2 py-1 border border-gray-300 rounded-lg"
+              className="flex-1 min-w-0 max-w-full px-2.5 py-1.5 border border-gray-300 rounded-lg bg-white text-xs"
             />
-            <span>to</span>
+            <span className="text-gray-400 font-medium shrink-0">to</span>
             <input
               type="date"
               value={customEnd}
               onChange={(e) => setCustomEnd(e.target.value)}
-              className="px-2 py-1 border border-gray-300 rounded-lg"
+              className="flex-1 min-w-0 max-w-full px-2.5 py-1.5 border border-gray-300 rounded-lg bg-white text-xs"
             />
             <button
               onClick={loadReport}
-              className="px-3 py-1 bg-brand-700 text-white rounded-lg font-bold"
+              className="px-3.5 py-1.5 bg-brand-700 text-white rounded-lg font-bold shrink-0 shadow-sm"
             >
               Apply
             </button>

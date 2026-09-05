@@ -48,8 +48,8 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body - Single clean vertical scroll with overscroll-contain */}
-        <div className="p-3.5 sm:p-5 overflow-y-auto overscroll-contain flex-1">
+        {/* Modal Body - Single clean vertical scroll with overscroll-contain and zero horizontal overflow */}
+        <div className="p-3.5 sm:p-5 overflow-y-auto overflow-x-hidden overscroll-contain flex-1 min-w-0 max-w-full">
           {children}
         </div>
       </div>

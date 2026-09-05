@@ -340,23 +340,23 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
             </div>
 
             {ledgerFilter === 'custom' && (
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 text-xs w-full min-w-0">
                 <input
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="px-2 py-1 border border-gray-300 rounded-lg"
+                  className="flex-1 min-w-0 max-w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-white"
                 />
-                <span>to</span>
+                <span className="text-gray-400 font-medium shrink-0">to</span>
                 <input
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="px-2 py-1 border border-gray-300 rounded-lg"
+                  className="flex-1 min-w-0 max-w-full px-2 py-1.5 border border-gray-300 rounded-lg bg-white"
                 />
                 <button
                   onClick={() => loadLedger(ledgerWorker, 'custom')}
-                  className="px-2.5 py-1 bg-brand-700 text-white rounded-lg font-bold"
+                  className="px-3 py-1.5 bg-brand-700 text-white rounded-lg font-bold shrink-0 shadow-sm"
                 >
                   Filter
                 </button>
@@ -583,13 +583,13 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
       >
         <form onSubmit={handleSavePayment} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Worker *</label>
               <select
                 required
                 value={paymentForm.worker_id}
                 onChange={(e) => setPaymentForm({ ...paymentForm, worker_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-sm outline-none bg-white"
               >
                 <option value="">Select Worker</option>
                 {workers.map((w) => (
@@ -600,14 +600,14 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
               </select>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Date *</label>
               <input
                 type="date"
                 required
                 value={paymentForm.payment_date}
                 onChange={(e) => setPaymentForm({ ...paymentForm, payment_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-sm outline-none bg-white"
               />
             </div>
           </div>

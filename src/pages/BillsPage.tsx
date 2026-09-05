@@ -798,14 +798,14 @@ export const BillsPage: React.FC<BillsPageProps> = ({
       >
         <form onSubmit={handleSaveBill} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Bill Date *</label>
               <input
                 type="date"
                 required
                 value={billForm.bill_date}
                 onChange={(e) => setBillForm({ ...billForm, bill_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
               />
             </div>
 
@@ -1231,14 +1231,14 @@ export const BillsPage: React.FC<BillsPageProps> = ({
       >
         <form onSubmit={handleSavePayment} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Payment Date *</label>
               <input
                 type="date"
                 required
                 value={paymentForm.payment_date}
                 onChange={(e) => setPaymentForm({ ...paymentForm, payment_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
               />
             </div>
             <div>

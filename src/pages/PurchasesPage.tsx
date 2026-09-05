@@ -259,12 +259,12 @@ export const PurchasesPage: React.FC<PurchasesPageProps> = ({
 
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 bg-white rounded-2xl border border-gray-200 shadow-sm text-xs">
-        <div>
+        <div className="min-w-0">
           <label className="block text-gray-500 font-bold mb-1">Filter by Supplier</label>
           <select
             value={selectedCompanyId}
             onChange={(e) => setSelectedCompanyId(e.target.value)}
-            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="w-full min-w-0 px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
             <option value="">All Suppliers</option>
             {companies.map((c) => (
@@ -275,23 +275,23 @@ export const PurchasesPage: React.FC<PurchasesPageProps> = ({
           </select>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <label className="block text-gray-500 font-bold mb-1">From Date</label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none"
+            className="w-full min-w-0 max-w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none"
           />
         </div>
 
-        <div>
+        <div className="min-w-0">
           <label className="block text-gray-500 font-bold mb-1">To Date</label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none"
+            className="w-full min-w-0 max-w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold focus:outline-none"
           />
         </div>
       </div>
@@ -513,24 +513,24 @@ export const PurchasesPage: React.FC<PurchasesPageProps> = ({
       >
         <form onSubmit={handleSavePurchase} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Date *</label>
               <input
                 type="date"
                 required
                 value={formData.purchase_date}
                 onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none bg-white"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Supplier / Company *</label>
               <select
                 required
                 value={formData.company_id}
                 onChange={(e) => setFormData({ ...formData, company_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 outline-none bg-white"
               >
                 <option value="">Select Supplier</option>
                 {companies.map((c) => (

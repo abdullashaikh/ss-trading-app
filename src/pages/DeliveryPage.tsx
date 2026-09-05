@@ -219,7 +219,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
       <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Delivery Date */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-brand-700" />
               Delivery Date
@@ -228,12 +228,12 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
               type="date"
               value={deliveryDate}
               onChange={(e) => setDeliveryDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+              className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none bg-white"
             />
           </div>
 
           {/* Truck Selection */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
               <Truck className="w-3.5 h-3.5 text-brand-700" />
               Select Truck / Load
@@ -241,7 +241,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
             <select
               value={selectedTruckId}
               onChange={(e) => setSelectedTruckId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+              className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none bg-white"
             >
               {trucks.map((t) => (
                 <option key={t.truck_id} value={t.truck_id}>
@@ -252,7 +252,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
           </div>
 
           {/* Customer Selection */}
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-brand-700" />
               Customer / Party
@@ -260,7 +260,7 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
             <select
               value={selectedCustomerId}
               onChange={(e) => setSelectedCustomerId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+              className="w-full min-w-0 max-w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none bg-white"
             >
               {customers.map((c) => (
                 <option key={c.customer_id} value={c.customer_id}>

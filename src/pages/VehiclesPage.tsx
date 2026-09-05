@@ -654,24 +654,24 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
       >
         <form onSubmit={handleSaveEntry} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Date *</label>
               <input
                 type="date"
                 required
                 value={entryForm.entry_date}
                 onChange={(e) => setEntryForm({ ...entryForm, entry_date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Vehicle *</label>
               <select
                 required
                 value={entryForm.vehicle_id}
                 onChange={(e) => setEntryForm({ ...entryForm, vehicle_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map((v) => (
@@ -682,12 +682,12 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
               </select>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Driver</label>
               <select
                 value={entryForm.driver_worker_id}
                 onChange={(e) => setEntryForm({ ...entryForm, driver_worker_id: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
+                className="w-full min-w-0 px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-brand-500 outline-none"
               >
                 <option value="">Select Driver</option>
                 {workers.map((w) => (
@@ -700,11 +700,11 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
           </div>
 
           {/* Direct Vehicle Expenses */}
-          <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 grid grid-cols-3 gap-3">
-            <div>
+          <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
-                <Fuel className="w-3.5 h-3.5 text-rose-600" />
-                Diesel (₹)
+                <Fuel className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                <span>Diesel (₹)</span>
               </label>
               <input
                 type="number"
@@ -712,14 +712,14 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
                 value={entryForm.diesel_amount}
                 onChange={(e) => setEntryForm({ ...entryForm, diesel_amount: e.target.value })}
                 placeholder="0.00"
-                className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold"
+                className="w-full min-w-0 px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
-                <Wrench className="w-3.5 h-3.5 text-blue-600" />
-                Maintenance (₹)
+                <Wrench className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>Maintenance (₹)</span>
               </label>
               <input
                 type="number"
@@ -727,11 +727,11 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
                 value={entryForm.maintenance_amount}
                 onChange={(e) => setEntryForm({ ...entryForm, maintenance_amount: e.target.value })}
                 placeholder="0.00"
-                className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold"
+                className="w-full min-w-0 px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-700 mb-1">Other Expense (₹)</label>
               <input
                 type="number"
@@ -739,7 +739,7 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
                 value={entryForm.other_expense}
                 onChange={(e) => setEntryForm({ ...entryForm, other_expense: e.target.value })}
                 placeholder="0.00"
-                className="w-full px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold"
+                className="w-full min-w-0 px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold"
               />
             </div>
           </div>
