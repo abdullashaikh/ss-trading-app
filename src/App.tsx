@@ -18,6 +18,7 @@ import { ReportsPage } from './pages/ReportsPage.js';
 const MainLayout: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Cross-page quick action states
   const [isAddPurchaseOpen, setIsAddPurchaseOpen] = useState(false);
@@ -50,7 +51,12 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+      />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pb-24 md:pb-8">
         {activeTab === 'dashboard' && (
@@ -134,7 +140,11 @@ const MainLayout: React.FC = () => {
         {activeTab === 'reports' && <ReportsPage />}
       </main>
 
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenMenu={() => setIsMobileMenuOpen(true)}
+      />
     </div>
   );
 };

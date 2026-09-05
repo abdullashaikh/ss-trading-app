@@ -386,8 +386,55 @@ export const WorkersPage: React.FC<WorkersPageProps> = ({
             </div>
           )}
 
-          {/* History Rows */}
-          <div className="overflow-x-auto max-h-80 rounded-xl border border-gray-200">
+          {/* Mobile Payment History Cards (Zero Horizontal Scroll) */}
+          <div className="block md:hidden space-y-2.5 max-h-80 overflow-y-auto pr-0.5">
+            {ledgerData?.history?.length ? (
+              ledgerData.history.map((h: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        h.payment_type === 'Daily Wage' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+                      }`}>
+                        {h.payment_type}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-700">{h.payment_date}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <strong className="font-extrabold text-xs text-gray-900">
+                        {formatCurrency(h.amount)}
+                      </strong>
+                      <button
+                        onClick={() => setDeleteConfirmPayment(h)}
+                        title="Delete Wage Payment"
+                        className="p-1 rounded-lg text-rose-500 hover:bg-rose-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-gray-600">
+                    {h.vehicle_number && (
+                      <span className="font-bold text-gray-800 block mb-0.5">Vehicle: {h.vehicle_number}</span>
+                    )}
+                    <span className="text-gray-500">{h.notes || 'No extra notes'}</span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-6 bg-white rounded-xl border border-gray-200 text-center text-gray-400 text-xs">
+                No payment records found
+              </div>
+            )}
+          </div>
+
+          {/* Desktop History Table */}
+          <div className="hidden md:block overflow-x-auto max-h-80 rounded-xl border border-gray-200">
             <table className="w-full text-left text-xs border-collapse">
               <thead className="bg-gray-100 text-gray-700 font-semibold border-b border-gray-200">
                 <tr>

@@ -95,81 +95,105 @@ export const BoxGrid: React.FC<BoxGridProps> = ({
         </div>
       </div>
 
-      {/* Selected Boxes Detail Table */}
+      {/* Selected Boxes Detail (Responsive Cards - Zero Horizontal Scroll) */}
       {selectedBoxes.length > 0 && (
         <div className="space-y-3 pt-2">
-          <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-            <PackageCheck className="w-4 h-4 text-brand-700" />
-            Enter Details for Selected Boxes:
-          </h4>
+          <div className="flex items-center justify-between">
+            <h4 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+              <PackageCheck className="w-4 h-4 text-brand-700" />
+              <span>Enter Details for Selected Boxes ({selectedBoxes.length})</span>
+            </h4>
+            <span className="text-xs text-gray-500 font-medium">(પસંદ કરેલા બોક્સ વિગતો)</span>
+          </div>
 
-          <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-            <table className="w-full text-left text-xs border-collapse bg-white">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
-                  <th className="py-2 px-3">Box</th>
-                  <th className="py-2 px-3">Birds Qty</th>
-                  <th className="py-2 px-3">Weight (KG)</th>
-                  <th className="py-2 px-3">Rate / KG (₹)</th>
-                  <th className="py-2 px-3 text-right">Amount (₹)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {selectedBoxes.map((item) => (
-                  <tr key={item.box_id} className="hover:bg-gray-50/60">
-                    <td className="py-2 px-3 font-bold text-gray-900">
-                      Box {item.box_number}
-                    </td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        min="1"
-                        value={item.chicken_qty || ''}
-                        onChange={(e) => onUpdateBoxData(item.box_id, 'chicken_qty', parseInt(e.target.value, 10) || 0)}
-                        className="w-20 px-2 py-1 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
-                        placeholder="Qty"
-                      />
-                    </td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0.1"
-                        value={item.total_kg || ''}
-                        onChange={(e) => onUpdateBoxData(item.box_id, 'total_kg', parseFloat(e.target.value) || 0)}
-                        className="w-24 px-2 py-1 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
-                        placeholder="KG"
-                      />
-                    </td>
-                    <td className="py-2 px-3">
-                      <input
-                        type="number"
-                        step="0.5"
-                        min="1"
-                        value={item.price_per_kg || ''}
-                        onChange={(e) => onUpdateBoxData(item.box_id, 'price_per_kg', parseFloat(e.target.value) || 0)}
-                        className="w-24 px-2 py-1 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
-                        placeholder="Rate"
-                      />
-                    </td>
-                    <td className="py-2 px-3 text-right font-bold text-gray-900">
+          <div className="space-y-2.5 max-h-96 overflow-y-auto pr-0.5">
+            {selectedBoxes.map((item) => (
+              <div
+                key={item.box_id}
+                className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-brand-200 transition-colors space-y-2"
+              >
+                <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 bg-brand-700 text-white font-extrabold text-xs rounded-md shadow-2xs">
+                      Box #{item.box_number}
+                    </span>
+                    <span className="text-xs text-gray-600 font-medium">બોક્સ નં. {item.box_number}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-gray-400 block leading-tight">Amount (રકમ)</span>
+                    <span className="font-bold text-xs text-brand-800">
                       ₹{Number(item.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-gray-100 font-bold text-gray-900 border-t border-gray-300">
-                  <td className="py-2.5 px-3">Total ({selectedBoxes.length} Boxes)</td>
-                  <td className="py-2.5 px-3">{totalSelectedQty} Birds</td>
-                  <td className="py-2.5 px-3">{totalSelectedKg.toFixed(2)} KG</td>
-                  <td className="py-2.5 px-3 text-gray-500">—</td>
-                  <td className="py-2.5 px-3 text-right text-brand-700 font-black text-sm">
-                    ₹{totalSelectedAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">
+                      Birds (મરઘા)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.chicken_qty || ''}
+                      onChange={(e) => onUpdateBoxData(item.box_id, 'chicken_qty', parseInt(e.target.value, 10) || 0)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                      placeholder="Birds"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">
+                      Weight (KG/વજન)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0.1"
+                      value={item.total_kg || ''}
+                      onChange={(e) => onUpdateBoxData(item.box_id, 'total_kg', parseFloat(e.target.value) || 0)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                      placeholder="KG"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-600 mb-0.5">
+                      Rate/KG (ભાવ/₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="1"
+                      value={item.price_per_kg || ''}
+                      onChange={(e) => onUpdateBoxData(item.box_id, 'price_per_kg', parseFloat(e.target.value) || 0)}
+                      className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-medium focus:ring-1 focus:ring-brand-500 focus:outline-none"
+                      placeholder="Rate"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Subtotal Summary Box */}
+          <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            <div>
+              <span className="text-gray-500 block text-[11px]">Selected (પસંદ બોક્સ)</span>
+              <strong className="text-gray-900 font-extrabold">{selectedBoxes.length} Boxes</strong>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-[11px]">Total Birds (કુલ મરઘા)</span>
+              <strong className="text-gray-900 font-extrabold">{totalSelectedQty} Birds</strong>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-[11px]">Total Weight (કુલ વજન)</span>
+              <strong className="text-gray-900 font-extrabold">{totalSelectedKg.toFixed(2)} KG</strong>
+            </div>
+            <div>
+              <span className="text-gray-500 block text-[11px]">Total Amount (કુલ રકમ)</span>
+              <strong className="text-brand-700 font-black text-sm">
+                ₹{totalSelectedAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </strong>
+            </div>
           </div>
         </div>
       )}

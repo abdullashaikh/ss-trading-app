@@ -809,8 +809,74 @@ export const CustomersPage: React.FC<CustomersPageProps> = ({
             </div>
           )}
 
-          {/* Ledger Table */}
-          <div className="overflow-x-auto max-h-96 rounded-xl border border-gray-200">
+          {/* Mobile Ledger Transaction Cards (Zero Horizontal Scroll) */}
+          <div className="block md:hidden space-y-2.5 max-h-96 overflow-y-auto pr-0.5">
+            {ledgerData?.transactions?.length ? (
+              ledgerData.transactions.map((tx: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs space-y-2"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                        tx.tx_type === 'BILL' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      }`}>
+                        {tx.tx_type}
+                      </span>
+                      <span className="text-xs font-semibold text-gray-700">{tx.tx_date}</span>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="text-[10px] text-gray-400 block leading-tight">Running Due</span>
+                      <span className="font-extrabold text-xs text-gray-900">
+                        {formatCurrency(tx.running_balance)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-bold text-xs text-gray-900 block">{tx.reference}</span>
+                      {tx.notes && <span className="text-gray-400 text-[11px] block">{tx.notes}</span>}
+                    </div>
+
+                    {tx.tx_type === 'PAYMENT' && (
+                      <button
+                        onClick={() => handleDeleteLedgerPayment(tx.ref_id)}
+                        title="Delete Payment"
+                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-gray-100 text-xs">
+                    <div>
+                      <span className="text-[10px] text-gray-400 block">Weight</span>
+                      <span className="font-semibold text-gray-800">{tx.kg > 0 ? `${tx.kg} KG` : '—'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-gray-400 block">Bill Amount</span>
+                      <span className="font-semibold text-gray-800">{tx.amount > 0 ? formatCurrency(tx.amount) : '—'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-gray-400 block">Paid</span>
+                      <span className="font-bold text-emerald-700">{tx.paid > 0 ? formatCurrency(tx.paid) : '—'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-8 bg-white rounded-xl border border-gray-200 text-center text-gray-400 text-xs">
+                No transactions recorded in this date range
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Ledger Table */}
+          <div className="hidden md:block overflow-x-auto max-h-96 rounded-xl border border-gray-200">
             <table className="w-full text-left text-xs border-collapse bg-white">
               <thead className="sticky top-0 bg-gray-100 text-gray-700 font-semibold border-b border-gray-200">
                 <tr>

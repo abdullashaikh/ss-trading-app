@@ -352,7 +352,76 @@ export const DeliveryPage: React.FC<DeliveryPageProps> = ({ onConvertToBill }) =
       {/* Recent Deliveries List with Actions */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 space-y-3">
         <h2 className="text-sm font-bold text-gray-900">Recent Customer Deliveries</h2>
-        <div className="overflow-x-auto">
+
+        {/* Mobile Deliveries Cards (md:hidden) */}
+        <div className="md:hidden space-y-2.5">
+          {recentDeliveries.length > 0 ? (
+            recentDeliveries.map((del) => (
+              <div
+                key={del.delivery_id}
+                className="bg-gray-50/70 rounded-xl border border-gray-200 p-3 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <strong className="font-extrabold text-gray-900 text-sm">{del.customer_name}</strong>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      del.status === 'BILLED'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                    }`}
+                  >
+                    {del.status}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <span>📅 {del.delivery_date}</span>
+                  <span className="font-semibold text-gray-800">🚚 {del.truck_name}</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 p-2 bg-white rounded-lg border border-gray-100 text-center text-xs">
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase block">Crates</span>
+                    <span className="font-bold text-gray-800">{del.total_boxes} ({del.total_qty}b)</span>
+                  </div>
+                  <div className="border-x border-gray-100">
+                    <span className="text-[10px] text-gray-400 font-bold uppercase block">Weight</span>
+                    <span className="font-bold text-gray-800">{del.total_kg} KG</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 font-bold uppercase block">Amount</span>
+                    <span className="font-extrabold text-brand-700">{formatCurrency(del.total_amount)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-1 border-t border-gray-100">
+                  {del.status !== 'BILLED' && onConvertToBill && (
+                    <button
+                      onClick={() => handleConvertRecentToBill(del)}
+                      title="Generate Bill"
+                      className="px-3 py-1.5 bg-brand-700 hover:bg-brand-800 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-colors"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                      <span>Convert to Bill</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setDeleteConfirmDelivery(del)}
+                    title="Delete Delivery"
+                    className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-6 text-center text-gray-400 text-xs font-medium">No deliveries allocated yet</p>
+          )}
+        </div>
+
+        {/* Desktop Deliveries Table (hidden md:block) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
               <tr>

@@ -332,113 +332,272 @@ export const VehiclesPage: React.FC<VehiclesPageProps> = ({
 
       {/* Tab Content: Daily Entries */}
       {viewTab === 'entries' && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
-                <tr>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Vehicle</th>
-                  <th className="py-3 px-4">Driver</th>
-                  <th className="py-3 px-4">Diesel (₹)</th>
-                  <th className="py-3 px-4">Maintenance (₹)</th>
-                  <th className="py-3 px-4">Worker Pay (₹)</th>
-                  <th className="py-3 px-4">Total Expense</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {entries.length > 0 ? (
-                  entries.map((ent) => (
-                    <tr key={ent.vehicle_daily_entry_id} className="hover:bg-gray-50/70">
-                      <td className="py-3 px-4 font-medium text-gray-800">{ent.entry_date}</td>
-                      <td className="py-3 px-4">
-                        <strong className="text-gray-900 block font-bold">{ent.vehicle_number}</strong>
-                        <span className="text-[10px] text-gray-500">{ent.vehicle_name}</span>
-                      </td>
-                      <td className="py-3 px-4 font-semibold text-gray-700">{ent.driver_name || '—'}</td>
-                      <td className="py-3 px-4 font-medium text-gray-700">{formatCurrency(ent.diesel_amount)}</td>
-                      <td className="py-3 px-4 font-medium text-gray-700">{formatCurrency(ent.maintenance_amount)}</td>
-                      <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(ent.total_worker_payments)}</td>
-                      <td className="py-3 px-4 font-black text-rose-600 text-sm">
+        <>
+          {/* Mobile Daily Entries Cards (md:hidden) */}
+          <div className="md:hidden space-y-3">
+            {entries.length > 0 ? (
+              entries.map((ent) => (
+                <div
+                  key={ent.vehicle_daily_entry_id}
+                  className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  {/* Card Header: Date & Vehicle */}
+                  <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-brand-700 text-sm">
+                        {ent.vehicle_number}
+                      </span>
+                      {ent.vehicle_name && (
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          ({ent.vehicle_name})
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs font-semibold text-gray-500">
+                      {ent.entry_date}
+                    </span>
+                  </div>
+
+                  {/* Driver Row */}
+                  <div className="py-2 flex items-center justify-between text-xs">
+                    <span className="text-gray-500 font-medium">Driver:</span>
+                    <strong className="text-gray-900 font-bold">{ent.driver_name || '—'}</strong>
+                  </div>
+
+                  {/* Expenses Breakdown Grid */}
+                  <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 text-center">
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block uppercase">Diesel</span>
+                      <strong className="text-xs font-bold text-gray-800 block mt-0.5">
+                        {formatCurrency(ent.diesel_amount)}
+                      </strong>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block uppercase">Maintenance</span>
+                      <strong className="text-xs font-bold text-gray-800 block mt-0.5">
+                        {formatCurrency(ent.maintenance_amount)}
+                      </strong>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block uppercase">Worker Pay</span>
+                      <strong className="text-xs font-bold text-amber-700 block mt-0.5">
+                        {formatCurrency(ent.total_worker_payments)}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Total Expense & Actions */}
+                  <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] text-gray-400 font-bold block uppercase">Total Expense</span>
+                      <strong className="text-sm font-black text-rose-600 block">
                         {formatCurrency(ent.total_daily_expense)}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            onClick={() => handleViewEntry(ent.vehicle_daily_entry_id)}
-                            title="View Details"
-                            className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-[11px]"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => handleOpenEditEntry(ent)}
-                            title="Edit Trip Entry"
-                            className="p-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirmEntry(ent)}
-                            title="Delete Trip Entry"
-                            className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleViewEntry(ent.vehicle_daily_entry_id)}
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold text-xs transition-colors"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleOpenEditEntry(ent)}
+                        className="p-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                        title="Edit Trip"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmEntry(ent)}
+                        className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                        title="Delete Trip"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-12 bg-white rounded-2xl border border-gray-200 text-center text-gray-400">
+                <Truck className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+                <p className="font-semibold">No vehicle daily entries recorded yet</p>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Daily Entries Table (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
+                  <tr>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Vehicle</th>
+                    <th className="py-3 px-4">Driver</th>
+                    <th className="py-3 px-4">Diesel (₹)</th>
+                    <th className="py-3 px-4">Maintenance (₹)</th>
+                    <th className="py-3 px-4">Worker Pay (₹)</th>
+                    <th className="py-3 px-4">Total Expense</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {entries.length > 0 ? (
+                    entries.map((ent) => (
+                      <tr key={ent.vehicle_daily_entry_id} className="hover:bg-gray-50/70">
+                        <td className="py-3 px-4 font-medium text-gray-800">{ent.entry_date}</td>
+                        <td className="py-3 px-4">
+                          <strong className="text-gray-900 block font-bold">{ent.vehicle_number}</strong>
+                          <span className="text-[10px] text-gray-500">{ent.vehicle_name}</span>
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-gray-700">{ent.driver_name || '—'}</td>
+                        <td className="py-3 px-4 font-medium text-gray-700">{formatCurrency(ent.diesel_amount)}</td>
+                        <td className="py-3 px-4 font-medium text-gray-700">{formatCurrency(ent.maintenance_amount)}</td>
+                        <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(ent.total_worker_payments)}</td>
+                        <td className="py-3 px-4 font-black text-rose-600 text-sm">
+                          {formatCurrency(ent.total_daily_expense)}
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              onClick={() => handleViewEntry(ent.vehicle_daily_entry_id)}
+                              title="View Details"
+                              className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-bold text-[11px]"
+                            >
+                              View
+                            </button>
+                            <button
+                              onClick={() => handleOpenEditEntry(ent)}
+                              title="Edit Trip Entry"
+                              className="p-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirmEntry(ent)}
+                              title="Delete Trip Entry"
+                              className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-10 text-center text-gray-400">
+                        No vehicle daily entries recorded yet
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="py-10 text-center text-gray-400">
-                      No vehicle daily entries recorded yet
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Tab Content: Expense Report */}
       {viewTab === 'report' && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
-                <tr>
-                  <th className="py-3 px-4">Vehicle</th>
-                  <th className="py-3 px-4">Days / Trips</th>
-                  <th className="py-3 px-4">Total Diesel</th>
-                  <th className="py-3 px-4">Total Maintenance</th>
-                  <th className="py-3 px-4">Total Worker Pay</th>
-                  <th className="py-3 px-4">Other Expense</th>
-                  <th className="py-3 px-4 text-right">Grand Total Expense</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {vehicleReport.map((rep) => (
-                  <tr key={rep.vehicle_id} className="hover:bg-gray-50/70">
-                    <td className="py-3 px-4 font-bold text-gray-900">
-                      {rep.vehicle_number} <span className="text-gray-500 font-normal">({rep.vehicle_name})</span>
-                    </td>
-                    <td className="py-3 px-4 font-semibold">{rep.total_trips_or_days} Trips</td>
-                    <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_diesel)}</td>
-                    <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_maintenance)}</td>
-                    <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(rep.total_worker_payments)}</td>
-                    <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_other_expense)}</td>
-                    <td className="py-3 px-4 text-right font-black text-rose-700 text-sm">
+        <>
+          {/* Mobile Expense Report Cards (md:hidden) */}
+          <div className="md:hidden space-y-3">
+            {vehicleReport.length > 0 ? (
+              vehicleReport.map((rep) => (
+                <div
+                  key={rep.vehicle_id}
+                  className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
+                    <div>
+                      <span className="font-extrabold text-gray-900 text-sm block">
+                        {rep.vehicle_number}
+                      </span>
+                      {rep.vehicle_name && (
+                        <span className="text-[11px] text-gray-500 font-medium">
+                          {rep.vehicle_name}
+                        </span>
+                      )}
+                    </div>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                      {rep.total_trips_or_days} Trips
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 py-2.5 text-xs">
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block">Total Diesel</span>
+                      <strong className="text-gray-900 font-bold block mt-0.5">{formatCurrency(rep.total_diesel)}</strong>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block">Maintenance</span>
+                      <strong className="text-gray-900 font-bold block mt-0.5">{formatCurrency(rep.total_maintenance)}</strong>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-amber-700 font-semibold block">Worker Payments</span>
+                      <strong className="text-amber-800 font-bold block mt-0.5">{formatCurrency(rep.total_worker_payments)}</strong>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded-xl">
+                      <span className="text-[10px] text-gray-500 font-semibold block">Other Expense</span>
+                      <strong className="text-gray-900 font-bold block mt-0.5">{formatCurrency(rep.total_other_expense)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-700">Grand Total Expense:</span>
+                    <strong className="text-sm font-black text-rose-600">
                       {formatCurrency(rep.grand_total_expense)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </strong>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="py-12 bg-white rounded-2xl border border-gray-200 text-center text-gray-400">
+                <p className="font-semibold">No expense data available</p>
+              </div>
+            )}
           </div>
-        </div>
+
+          {/* Desktop Expense Report Table (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
+                  <tr>
+                    <th className="py-3 px-4">Vehicle</th>
+                    <th className="py-3 px-4">Days / Trips</th>
+                    <th className="py-3 px-4">Total Diesel</th>
+                    <th className="py-3 px-4">Total Maintenance</th>
+                    <th className="py-3 px-4">Total Worker Pay</th>
+                    <th className="py-3 px-4">Other Expense</th>
+                    <th className="py-3 px-4 text-right">Grand Total Expense</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {vehicleReport.map((rep) => (
+                    <tr key={rep.vehicle_id} className="hover:bg-gray-50/70">
+                      <td className="py-3 px-4 font-bold text-gray-900">
+                        {rep.vehicle_number} <span className="text-gray-500 font-normal">({rep.vehicle_name})</span>
+                      </td>
+                      <td className="py-3 px-4 font-semibold">{rep.total_trips_or_days} Trips</td>
+                      <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_diesel)}</td>
+                      <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_maintenance)}</td>
+                      <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(rep.total_worker_payments)}</td>
+                      <td className="py-3 px-4 font-medium">{formatCurrency(rep.total_other_expense)}</td>
+                      <td className="py-3 px-4 text-right font-black text-rose-700 text-sm">
+                        {formatCurrency(rep.grand_total_expense)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Tab Content: Vehicle Master List */}

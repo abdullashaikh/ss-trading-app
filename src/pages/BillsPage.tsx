@@ -524,8 +524,154 @@ export const BillsPage: React.FC<BillsPageProps> = ({
         />
       </div>
 
-      {/* Bills Cards / Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile Bills Card / Box View (md:hidden) - ZERO horizontal scroll */}
+      <div className="md:hidden space-y-3">
+        {bills.length > 0 ? (
+          bills.map((b) => (
+            <div
+              key={b.bill_id}
+              className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Header: Bill #, Date, WP Status */}
+              <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-brand-700 text-sm tracking-tight">
+                    {b.bill_number}
+                  </span>
+                  {b.whatsapp_status === 'SENT' ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>WP Sent</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-500">
+                      WP Pending
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-semibold text-gray-500">
+                  {b.bill_date}
+                </span>
+              </div>
+
+              {/* Customer & Quantity Info */}
+              <div className="py-2.5 flex items-start justify-between gap-2">
+                <div>
+                  <h4 className="font-extrabold text-gray-900 text-sm leading-snug">
+                    {b.customer_name_snapshot}
+                  </h4>
+                  {b.customer_mobile_snapshot && (
+                    <a
+                      href={`tel:${b.customer_mobile_snapshot}`}
+                      className="text-xs text-brand-700 font-semibold hover:underline mt-0.5 inline-block"
+                    >
+                      📱 {b.customer_mobile_snapshot}
+                    </a>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">
+                    Weight & Birds
+                  </span>
+                  <strong className="text-xs font-black text-gray-800 block">
+                    {Number(b.total_kg).toFixed(2)} KG
+                  </strong>
+                  <span className="text-[11px] text-gray-500 block">
+                    ({b.total_quantity} Birds)
+                  </span>
+                </div>
+              </div>
+
+              {/* Financial Breakdown Box (3 Columns) */}
+              <div className="grid grid-cols-3 gap-2 p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-center my-1.5">
+                <div className="p-1">
+                  <span className="text-[10px] text-gray-500 font-semibold block">Bill Amount</span>
+                  <strong className="text-xs font-extrabold text-gray-900 block mt-0.5">
+                    {formatCurrency(b.current_bill_amount)}
+                  </strong>
+                </div>
+                <div className="p-1 border-x border-gray-200">
+                  <span className="text-[10px] text-emerald-700 font-semibold block">Paid</span>
+                  <strong className="text-xs font-extrabold text-emerald-700 block mt-0.5">
+                    {formatCurrency(b.amount_paid)}
+                  </strong>
+                </div>
+                <div className="p-1 bg-rose-50/80 rounded-lg">
+                  <span className="text-[10px] text-rose-700 font-bold block">Final Due</span>
+                  <strong className="text-xs font-black text-rose-600 block mt-0.5">
+                    {formatCurrency(b.final_pending_amount)}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Action Buttons Bar */}
+              <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5 flex-1">
+                  <button
+                    onClick={() => handleShareWhatsApp(b)}
+                    className="flex-1 py-1.5 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1 shadow-xs transition-colors"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleDownloadPdf(b.bill_number)}
+                    className="py-1.5 px-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors"
+                    title="Direct Download PDF"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>PDF</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleViewBill(b.bill_id)}
+                    className="py-1.5 px-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold flex items-center justify-center gap-1 transition-colors"
+                    title="View Bill Details"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => setPaymentModalBill(b)}
+                    title="Record Payment"
+                    className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handleOpenEditBill(b)}
+                    title="Edit Bill"
+                    className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => setDeleteConfirmBill(b)}
+                    title="Delete Bill"
+                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="py-12 bg-white rounded-2xl border border-gray-200 text-center text-gray-400">
+            <Receipt className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+            <p className="font-semibold">No bills found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Bills Table View (hidden md:block) */}
+      <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
@@ -727,88 +873,110 @@ export const BillsPage: React.FC<BillsPageProps> = ({
             </div>
           )}
 
-          {/* Line Items Table */}
-          <div className="space-y-2">
+          {/* Line Items Cards (Responsive - Zero Horizontal Scroll) */}
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700">Box Line Items</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center gap-1.5">
+                <span>Box Line Items ({billForm.items.length})</span>
+                <span className="text-[11px] text-gray-500 font-normal">(બોક્સ વિગતો)</span>
+              </h4>
               <button
                 type="button"
                 onClick={handleAddLineItem}
-                className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-bold transition-colors"
+                className="px-3 py-1.5 bg-brand-700 hover:bg-brand-800 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1"
               >
                 + Add Box
               </button>
             </div>
 
-            <div className="overflow-x-auto border border-gray-200 rounded-xl">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-gray-100 text-gray-700 font-semibold">
-                  <tr>
-                    <th className="py-2 px-3">Crate # (બોક્સ નં)</th>
-                    <th className="py-2 px-3">Birds Qty (મરઘા)</th>
-                    <th className="py-2 px-3">Weight (KG/વજન)</th>
-                    <th className="py-2 px-3">Rate / KG (ભાવ/₹)</th>
-                    <th className="py-2 px-3">Amount (રકમ/₹)</th>
-                    <th className="py-2 px-3 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {billForm.items.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50/50">
-                      <td className="py-2 px-3">
+            <div className="space-y-2.5 max-h-80 overflow-y-auto pr-0.5">
+              {billForm.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-gray-300 transition-all space-y-2"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-brand-50 text-brand-700 font-extrabold text-xs rounded-md border border-brand-200/70">
+                        Box #{item.box_number} (બોક્સ)
+                      </span>
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <span className="text-[11px]">No:</span>
                         <input
                           type="number"
                           min="1"
                           value={item.box_number}
                           onChange={(e) => handleUpdateLineItem(idx, 'box_number', parseInt(e.target.value, 10) || 1)}
-                          className="w-16 px-2 py-1 border border-gray-300 rounded-lg font-bold"
+                          className="w-14 px-1.5 py-0.5 border border-gray-300 rounded-md font-bold text-center text-xs focus:ring-1 focus:ring-brand-500 outline-none"
                         />
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.chicken_quantity}
-                          onChange={(e) => handleUpdateLineItem(idx, 'chicken_quantity', parseInt(e.target.value, 10) || 0)}
-                          className="w-20 px-2 py-1 border border-gray-300 rounded-lg"
-                        />
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0.1"
-                          value={item.total_kg}
-                          onChange={(e) => handleUpdateLineItem(idx, 'total_kg', parseFloat(e.target.value) || 0)}
-                          className="w-24 px-2 py-1 border border-gray-300 rounded-lg font-semibold"
-                        />
-                      </td>
-                      <td className="py-2 px-3">
-                        <input
-                          type="number"
-                          step="0.5"
-                          min="1"
-                          value={item.price_per_kg}
-                          onChange={(e) => handleUpdateLineItem(idx, 'price_per_kg', parseFloat(e.target.value) || 0)}
-                          className="w-24 px-2 py-1 border border-gray-300 rounded-lg font-semibold"
-                        />
-                      </td>
-                      <td className="py-2 px-3 font-bold text-gray-900">
-                        {formatCurrency(item.amount)}
-                      </td>
-                      <td className="py-2 px-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveLineItem(idx)}
-                          className="text-rose-500 hover:text-rose-700 p-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-400 block font-medium leading-none mb-0.5">Amount (રકમ)</span>
+                        <span className="font-extrabold text-xs text-brand-800">
+                          {formatCurrency(item.amount)}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLineItem(idx)}
+                        className="p-1.5 text-rose-500 hover:bg-rose-50 hover:text-rose-700 rounded-lg transition-colors ml-1"
+                        title="Remove Box"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                        Birds (મરઘા)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.chicken_quantity || ''}
+                        onChange={(e) => handleUpdateLineItem(idx, 'chicken_quantity', parseInt(e.target.value, 10) || 0)}
+                        placeholder="Qty"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-brand-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                        Weight (KG/વજન)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.1"
+                        value={item.total_kg || ''}
+                        onChange={(e) => handleUpdateLineItem(idx, 'total_kg', parseFloat(e.target.value) || 0)}
+                        placeholder="KG"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-brand-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-600 mb-1">
+                        Rate/KG (ભાવ/₹)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="1"
+                        value={item.price_per_kg || ''}
+                        onChange={(e) => handleUpdateLineItem(idx, 'price_per_kg', parseFloat(e.target.value) || 0)}
+                        placeholder="Rate"
+                        className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-1 focus:ring-brand-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -986,30 +1154,42 @@ export const BillsPage: React.FC<BillsPageProps> = ({
               </div>
             </div>
 
-            {/* Bill Line Items */}
-            <div className="overflow-x-auto border border-gray-200 rounded-xl">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-gray-100 text-gray-700 font-semibold">
-                  <tr>
-                    <th className="py-2 px-3">Crate # (બોક્સ નં)</th>
-                    <th className="py-2 px-3">Birds (મરઘા)</th>
-                    <th className="py-2 px-3">Weight (KG/વજન)</th>
-                    <th className="py-2 px-3">Rate (ભાવ)</th>
-                    <th className="py-2 px-3 text-right">Amount (રકમ)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {(selectedBill.details || []).map((item: any, idx: number) => (
-                    <tr key={idx}>
-                      <td className="py-2 px-3 font-bold">Crate {item.box_number}</td>
-                      <td className="py-2 px-3">{item.chicken_quantity} Birds</td>
-                      <td className="py-2 px-3">{Number(item.total_kg).toFixed(2)} KG</td>
-                      <td className="py-2 px-3">₹{Number(item.price_per_kg).toFixed(2)}</td>
-                      <td className="py-2 px-3 text-right font-bold">{formatCurrency(item.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Bill Line Items (Responsive Cards/Rows - Zero Horizontal Scroll) */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-700 flex items-center justify-between">
+                <span>Box Line Items ({selectedBill.details?.length || 0})</span>
+                <span className="text-[11px] text-gray-500 font-normal">(બોક્સ વિગતો)</span>
+              </h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-0.5">
+                {(selectedBill.details || []).map((item: any, idx: number) => (
+                  <div
+                    key={idx}
+                    className="p-2.5 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-white font-extrabold text-brand-700 rounded-md border border-gray-200 shadow-2xs">
+                        Box #{item.box_number}
+                      </span>
+                      <span className="font-semibold text-gray-800">
+                        {item.chicken_quantity} Birds (મરઘા)
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <span className="font-semibold text-gray-800">
+                        {Number(item.total_kg).toFixed(2)} KG (વજન)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-gray-200/60">
+                      <span className="text-gray-500">
+                        @ ₹{Number(item.price_per_kg).toFixed(2)}/KG
+                      </span>
+                      <span className="font-extrabold text-gray-900">
+                        {formatCurrency(item.amount)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Financial Summary */}

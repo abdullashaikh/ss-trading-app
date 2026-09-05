@@ -223,115 +223,243 @@ export const ReportsPage: React.FC = () => {
           </div>
         </div>
       ) : (
-        /* Detailed Tabular Report */
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
-                {reportType === 'purchases' && (
-                  <tr>
-                    <th className="py-3 px-4">Supplier</th>
-                    <th className="py-3 px-4">Purchases Count</th>
-                    <th className="py-3 px-4">Total Qty (Birds)</th>
-                    <th className="py-3 px-4">Total Weight (KG)</th>
-                    <th className="py-3 px-4">Total Purchase (₹)</th>
-                    <th className="py-3 px-4">Total Paid (₹)</th>
-                    <th className="py-3 px-4 text-right">Pending (₹)</th>
-                  </tr>
-                )}
-                {reportType === 'sales' && (
-                  <tr>
-                    <th className="py-3 px-4">Customer</th>
-                    <th className="py-3 px-4">Bills Count</th>
-                    <th className="py-3 px-4">Total Qty (Birds)</th>
-                    <th className="py-3 px-4">Total Weight (KG)</th>
-                    <th className="py-3 px-4">Total Sales (₹)</th>
-                    <th className="py-3 px-4">Total Paid (₹)</th>
-                    <th className="py-3 px-4 text-right">Pending (₹)</th>
-                  </tr>
-                )}
-                {reportType === 'vehicles' && (
-                  <tr>
-                    <th className="py-3 px-4">Vehicle</th>
-                    <th className="py-3 px-4">Trips / Days</th>
-                    <th className="py-3 px-4">Diesel (₹)</th>
-                    <th className="py-3 px-4">Maintenance (₹)</th>
-                    <th className="py-3 px-4">Labor Wages (₹)</th>
-                    <th className="py-3 px-4">Other (₹)</th>
-                    <th className="py-3 px-4 text-right">Total Expense (₹)</th>
-                  </tr>
-                )}
-                {reportType === 'workers' && (
-                  <tr>
-                    <th className="py-3 px-4">Worker</th>
-                    <th className="py-3 px-4">Role</th>
-                    <th className="py-3 px-4">Days / Entries</th>
-                    <th className="py-3 px-4">Daily Wages (₹)</th>
-                    <th className="py-3 px-4">Advances (₹)</th>
-                    <th className="py-3 px-4">Other (₹)</th>
-                    <th className="py-3 px-4 text-right">Total Paid (₹)</th>
-                  </tr>
-                )}
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {tableData.length > 0 ? (
-                  tableData.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50/70">
-                      {reportType === 'purchases' && (
-                        <>
-                          <td className="py-3 px-4 font-bold text-gray-900">{row.company_name}</td>
-                          <td className="py-3 px-4 font-semibold">{row.total_purchases}</td>
-                          <td className="py-3 px-4">{row.total_chicken_qty} Birds</td>
-                          <td className="py-3 px-4 font-medium">{Number(row.total_kg || 0).toFixed(2)} KG</td>
-                          <td className="py-3 px-4 font-bold text-gray-900">{formatCurrency(row.total_purchase_amount)}</td>
-                          <td className="py-3 px-4 font-bold text-emerald-700">{formatCurrency(row.total_paid)}</td>
-                          <td className="py-3 px-4 text-right font-black text-rose-600">{formatCurrency(row.total_pending)}</td>
-                        </>
-                      )}
-                      {reportType === 'sales' && (
-                        <>
-                          <td className="py-3 px-4 font-bold text-gray-900">{row.customer_name}</td>
-                          <td className="py-3 px-4 font-semibold">{row.total_bills}</td>
-                          <td className="py-3 px-4">{row.total_qty} Birds</td>
-                          <td className="py-3 px-4 font-medium">{Number(row.total_kg || 0).toFixed(2)} KG</td>
-                          <td className="py-3 px-4 font-bold text-gray-900">{formatCurrency(row.total_sales)}</td>
-                          <td className="py-3 px-4 font-bold text-emerald-700">{formatCurrency(row.total_paid)}</td>
-                          <td className="py-3 px-4 text-right font-black text-rose-600">{formatCurrency(row.total_pending)}</td>
-                        </>
-                      )}
-                      {reportType === 'vehicles' && (
-                        <>
-                          <td className="py-3 px-4 font-bold text-gray-900">{row.vehicle_number} ({row.vehicle_name})</td>
-                          <td className="py-3 px-4 font-semibold">{row.total_trips_or_days}</td>
-                          <td className="py-3 px-4">{formatCurrency(row.total_diesel)}</td>
-                          <td className="py-3 px-4">{formatCurrency(row.total_maintenance)}</td>
-                          <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(row.total_worker_payments)}</td>
-                          <td className="py-3 px-4">{formatCurrency(row.total_other_expense)}</td>
-                          <td className="py-3 px-4 text-right font-black text-rose-700">{formatCurrency(row.grand_total_expense)}</td>
-                        </>
-                      )}
-                      {reportType === 'workers' && (
-                        <>
-                          <td className="py-3 px-4 font-bold text-gray-900">{row.worker_name}</td>
-                          <td className="py-3 px-4 font-semibold">{row.role}</td>
-                          <td className="py-3 px-4">{row.total_entries}</td>
-                          <td className="py-3 px-4 font-medium">{formatCurrency(row.total_daily_payments)}</td>
-                          <td className="py-3 px-4 font-medium text-amber-700">{formatCurrency(row.total_advances)}</td>
-                          <td className="py-3 px-4">{formatCurrency(row.total_other_payments)}</td>
-                          <td className="py-3 px-4 text-right font-black text-gray-900">{formatCurrency(row.total_paid)}</td>
-                        </>
-                      )}
+        <div className="space-y-4">
+          {/* Mobile Detailed Report Cards (block md:hidden) - Zero Horizontal Scroll */}
+          <div className="block md:hidden space-y-3">
+            {tableData.length > 0 ? (
+              tableData.map((row, idx) => (
+                <div
+                  key={idx}
+                  className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-2.5"
+                >
+                  {reportType === 'purchases' && (
+                    <>
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                        <strong className="text-sm font-bold text-gray-900">{row.company_name}</strong>
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 text-[11px] font-bold rounded-md">
+                          {row.total_purchases} Purchases
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Birds & Weight</span>
+                          <span className="font-semibold text-gray-800">{row.total_chicken_qty} Birds • {Number(row.total_kg || 0).toFixed(2)} KG</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Total Purchase</span>
+                          <span className="font-bold text-gray-900">{formatCurrency(row.total_purchase_amount)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Paid</span>
+                          <span className="font-bold text-emerald-700">{formatCurrency(row.total_paid)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Pending Due</span>
+                          <span className="font-extrabold text-rose-600">{formatCurrency(row.total_pending)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === 'sales' && (
+                    <>
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                        <strong className="text-sm font-bold text-gray-900">{row.customer_name}</strong>
+                        <span className="px-2 py-0.5 bg-brand-50 text-brand-700 text-[11px] font-bold rounded-md">
+                          {row.total_bills} Bills
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Birds & Weight</span>
+                          <span className="font-semibold text-gray-800">{row.total_qty} Birds • {Number(row.total_kg || 0).toFixed(2)} KG</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Total Sales</span>
+                          <span className="font-bold text-gray-900">{formatCurrency(row.total_sales)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Paid</span>
+                          <span className="font-bold text-emerald-700">{formatCurrency(row.total_paid)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Pending Due</span>
+                          <span className="font-extrabold text-rose-600">{formatCurrency(row.total_pending)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === 'vehicles' && (
+                    <>
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                        <strong className="text-sm font-bold text-gray-900">{row.vehicle_number}</strong>
+                        <span className="text-xs text-gray-500 font-medium">{row.vehicle_name} ({row.total_trips_or_days} Trips)</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Diesel</span>
+                          <span className="font-medium text-gray-800">{formatCurrency(row.total_diesel)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Maintenance</span>
+                          <span className="font-medium text-gray-800">{formatCurrency(row.total_maintenance)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Worker Pay</span>
+                          <span className="font-bold text-amber-700">{formatCurrency(row.total_worker_payments)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Total Expense</span>
+                          <span className="font-extrabold text-rose-700">{formatCurrency(row.grand_total_expense)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === 'workers' && (
+                    <>
+                      <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                        <div>
+                          <strong className="text-sm font-bold text-gray-900 block">{row.worker_name}</strong>
+                          <span className="text-[11px] text-gray-500">{row.role} • {row.total_entries} Entries</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-gray-400 block">Total Paid</span>
+                          <strong className="text-sm font-extrabold text-gray-900">{formatCurrency(row.total_paid)}</strong>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Daily Wages</span>
+                          <span className="font-medium text-gray-800">{formatCurrency(row.total_daily_payments)}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400 block text-[11px]">Advances</span>
+                          <span className="font-medium text-amber-700">{formatCurrency(row.total_advances)}</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="py-10 bg-white rounded-2xl border border-gray-200 text-center text-gray-400 text-xs">
+                No report records for the selected period
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Tabular Report (hidden md:block) */}
+          <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
+                  {reportType === 'purchases' && (
+                    <tr>
+                      <th className="py-3 px-4">Supplier</th>
+                      <th className="py-3 px-4">Purchases Count</th>
+                      <th className="py-3 px-4">Total Qty (Birds)</th>
+                      <th className="py-3 px-4">Total Weight (KG)</th>
+                      <th className="py-3 px-4">Total Purchase (₹)</th>
+                      <th className="py-3 px-4">Total Paid (₹)</th>
+                      <th className="py-3 px-4 text-right">Pending (₹)</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="py-10 text-center text-gray-400">
-                      No report records for the selected period
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                  {reportType === 'sales' && (
+                    <tr>
+                      <th className="py-3 px-4">Customer</th>
+                      <th className="py-3 px-4">Bills Count</th>
+                      <th className="py-3 px-4">Total Qty (Birds)</th>
+                      <th className="py-3 px-4">Total Weight (KG)</th>
+                      <th className="py-3 px-4">Total Sales (₹)</th>
+                      <th className="py-3 px-4">Total Paid (₹)</th>
+                      <th className="py-3 px-4 text-right">Pending (₹)</th>
+                    </tr>
+                  )}
+                  {reportType === 'vehicles' && (
+                    <tr>
+                      <th className="py-3 px-4">Vehicle</th>
+                      <th className="py-3 px-4">Trips / Days</th>
+                      <th className="py-3 px-4">Diesel (₹)</th>
+                      <th className="py-3 px-4">Maintenance (₹)</th>
+                      <th className="py-3 px-4">Labor Wages (₹)</th>
+                      <th className="py-3 px-4">Other (₹)</th>
+                      <th className="py-3 px-4 text-right">Total Expense (₹)</th>
+                    </tr>
+                  )}
+                  {reportType === 'workers' && (
+                    <tr>
+                      <th className="py-3 px-4">Worker</th>
+                      <th className="py-3 px-4">Role</th>
+                      <th className="py-3 px-4">Days / Entries</th>
+                      <th className="py-3 px-4">Daily Wages (₹)</th>
+                      <th className="py-3 px-4">Advances (₹)</th>
+                      <th className="py-3 px-4">Other (₹)</th>
+                      <th className="py-3 px-4 text-right">Total Paid (₹)</th>
+                    </tr>
+                  )}
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {tableData.length > 0 ? (
+                    tableData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50/70">
+                        {reportType === 'purchases' && (
+                          <>
+                            <td className="py-3 px-4 font-bold text-gray-900">{row.company_name}</td>
+                            <td className="py-3 px-4 font-semibold">{row.total_purchases}</td>
+                            <td className="py-3 px-4">{row.total_chicken_qty} Birds</td>
+                            <td className="py-3 px-4 font-medium">{Number(row.total_kg || 0).toFixed(2)} KG</td>
+                            <td className="py-3 px-4 font-bold text-gray-900">{formatCurrency(row.total_purchase_amount)}</td>
+                            <td className="py-3 px-4 font-bold text-emerald-700">{formatCurrency(row.total_paid)}</td>
+                            <td className="py-3 px-4 text-right font-black text-rose-600">{formatCurrency(row.total_pending)}</td>
+                          </>
+                        )}
+                        {reportType === 'sales' && (
+                          <>
+                            <td className="py-3 px-4 font-bold text-gray-900">{row.customer_name}</td>
+                            <td className="py-3 px-4 font-semibold">{row.total_bills}</td>
+                            <td className="py-3 px-4">{row.total_qty} Birds</td>
+                            <td className="py-3 px-4 font-medium">{Number(row.total_kg || 0).toFixed(2)} KG</td>
+                            <td className="py-3 px-4 font-bold text-gray-900">{formatCurrency(row.total_sales)}</td>
+                            <td className="py-3 px-4 font-bold text-emerald-700">{formatCurrency(row.total_paid)}</td>
+                            <td className="py-3 px-4 text-right font-black text-rose-600">{formatCurrency(row.total_pending)}</td>
+                          </>
+                        )}
+                        {reportType === 'vehicles' && (
+                          <>
+                            <td className="py-3 px-4 font-bold text-gray-900">{row.vehicle_number} ({row.vehicle_name})</td>
+                            <td className="py-3 px-4 font-semibold">{row.total_trips_or_days}</td>
+                            <td className="py-3 px-4">{formatCurrency(row.total_diesel)}</td>
+                            <td className="py-3 px-4">{formatCurrency(row.total_maintenance)}</td>
+                            <td className="py-3 px-4 font-bold text-amber-700">{formatCurrency(row.total_worker_payments)}</td>
+                            <td className="py-3 px-4">{formatCurrency(row.total_other_expense)}</td>
+                            <td className="py-3 px-4 text-right font-black text-rose-700">{formatCurrency(row.grand_total_expense)}</td>
+                          </>
+                        )}
+                        {reportType === 'workers' && (
+                          <>
+                            <td className="py-3 px-4 font-bold text-gray-900">{row.worker_name}</td>
+                            <td className="py-3 px-4 font-semibold">{row.role}</td>
+                            <td className="py-3 px-4">{row.total_entries}</td>
+                            <td className="py-3 px-4 font-medium">{formatCurrency(row.total_daily_payments)}</td>
+                            <td className="py-3 px-4 font-medium text-amber-700">{formatCurrency(row.total_advances)}</td>
+                            <td className="py-3 px-4">{formatCurrency(row.total_other_payments)}</td>
+                            <td className="py-3 px-4 text-right font-black text-gray-900">{formatCurrency(row.total_paid)}</td>
+                          </>
+                        )}
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="py-10 text-center text-gray-400">
+                        No report records for the selected period
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

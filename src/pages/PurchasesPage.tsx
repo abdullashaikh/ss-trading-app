@@ -296,8 +296,103 @@ export const PurchasesPage: React.FC<PurchasesPageProps> = ({
         </div>
       </div>
 
-      {/* Purchases List Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      {/* Mobile Purchases Cards / Boxes (md:hidden) */}
+      <div className="md:hidden space-y-3">
+        {purchases.length > 0 ? (
+          purchases.map((p) => (
+            <div
+              key={p.purchase_id}
+              className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Header: Date & Actions */}
+              <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+                  <Calendar className="w-3.5 h-3.5 text-brand-700" />
+                  <span>{p.purchase_date}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleOpenEdit(p)}
+                    className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteConfirmPurchase(p)}
+                    className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Supplier & Notes */}
+              <div className="py-2.5">
+                <h4 className="font-extrabold text-gray-900 text-sm leading-tight">
+                  {p.company_name}
+                </h4>
+                {p.notes && (
+                  <p className="text-[11px] text-gray-500 mt-0.5">{p.notes}</p>
+                )}
+              </div>
+
+              {/* Birds, Weight, Rate (3-Col Grid) */}
+              <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 text-center">
+                <div className="bg-gray-50 p-2 rounded-xl">
+                  <span className="text-[10px] text-gray-500 font-semibold block uppercase">Birds Qty</span>
+                  <strong className="text-xs font-extrabold text-gray-800 block mt-0.5">
+                    {Number(p.total_chicken_qty).toLocaleString('en-IN')}
+                  </strong>
+                </div>
+                <div className="bg-gray-50 p-2 rounded-xl">
+                  <span className="text-[10px] text-gray-500 font-semibold block uppercase">Weight</span>
+                  <strong className="text-xs font-extrabold text-gray-800 block mt-0.5">
+                    {Number(p.total_kg).toFixed(2)} KG
+                  </strong>
+                </div>
+                <div className="bg-gray-50 p-2 rounded-xl">
+                  <span className="text-[10px] text-gray-500 font-semibold block uppercase">Rate / KG</span>
+                  <strong className="text-xs font-extrabold text-gray-800 block mt-0.5">
+                    ₹{Number(p.price_per_kg).toFixed(2)}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Financial Breakdown (Total, Paid, Pending) */}
+              <div className="grid grid-cols-3 gap-2 p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-center mt-1">
+                <div className="p-1">
+                  <span className="text-[10px] text-gray-500 font-semibold block">Total Bill</span>
+                  <strong className="text-xs font-black text-gray-900 block mt-0.5">
+                    {formatCurrency(p.total_amount)}
+                  </strong>
+                </div>
+                <div className="p-1 border-x border-gray-200">
+                  <span className="text-[10px] text-emerald-700 font-semibold block">Paid</span>
+                  <strong className="text-xs font-black text-emerald-700 block mt-0.5">
+                    {formatCurrency(p.amount_paid)}
+                  </strong>
+                </div>
+                <div className="p-1 bg-rose-50/80 rounded-lg">
+                  <span className="text-[10px] text-rose-700 font-bold block">Pending</span>
+                  <strong className="text-xs font-black text-rose-600 block mt-0.5">
+                    {formatCurrency(p.pending_amount)}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="py-12 bg-white rounded-2xl border border-gray-200 text-center text-gray-400">
+            <ShoppingCart className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+            <p className="font-semibold">No purchase records found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Purchases List Table (hidden md:block) */}
+      <div className="hidden md:block bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
