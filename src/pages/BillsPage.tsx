@@ -991,11 +991,11 @@ export const BillsPage: React.FC<BillsPageProps> = ({
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-gray-100 text-gray-700 font-semibold">
                   <tr>
-                    <th className="py-2 px-3">Crate #</th>
-                    <th className="py-2 px-3">Birds</th>
-                    <th className="py-2 px-3">Weight (KG)</th>
-                    <th className="py-2 px-3">Rate</th>
-                    <th className="py-2 px-3 text-right">Amount</th>
+                    <th className="py-2 px-3">Crate # (બોક્સ નં)</th>
+                    <th className="py-2 px-3">Birds (મરઘા)</th>
+                    <th className="py-2 px-3">Weight (KG/વજન)</th>
+                    <th className="py-2 px-3">Rate (ભાવ)</th>
+                    <th className="py-2 px-3 text-right">Amount (રકમ)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -1015,7 +1015,7 @@ export const BillsPage: React.FC<BillsPageProps> = ({
             {/* Financial Summary */}
             <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5 text-xs">
               <div className="flex justify-between text-gray-600">
-                <span>Previous Balance (Old Due):</span>
+                <span>Previous Balance (અગાઉની બાકી):</span>
                 <strong className={Number(selectedBill.previous_pending_amount) < 0 ? 'text-blue-600' : 'text-gray-900'}>
                   {Number(selectedBill.previous_pending_amount) < 0
                     ? `-${formatCurrency(Math.abs(selectedBill.previous_pending_amount))} (Advance)`
@@ -1023,19 +1023,19 @@ export const BillsPage: React.FC<BillsPageProps> = ({
                 </strong>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>(+) Current Bill Amount:</span>
+                <span>(+) Current Bill Amount (હાલનું બિલ):</span>
                 <strong className="text-gray-900">{formatCurrency(selectedBill.current_bill_amount)}</strong>
               </div>
               <div className="flex justify-between text-brand-700 font-bold border-t border-gray-200/70 pt-1">
-                <span>(=) Total Net Due:</span>
+                <span>(=) Total Net Due (કુલ બાકી):</span>
                 <strong>{formatCurrency(selectedBill.total_due_amount)}</strong>
               </div>
               <div className="flex justify-between text-emerald-700">
-                <span>(-) Amount Paid:</span>
+                <span>(-) Amount Paid (ચૂકવેલ રકમ):</span>
                 <strong className="font-bold">{formatCurrency(selectedBill.amount_paid)}</strong>
               </div>
               <div className="flex justify-between border-t border-gray-200 pt-1 text-rose-700">
-                <span className="font-bold">(=) Final Pending Balance:</span>
+                <span className="font-bold">(=) Final Pending Balance (અંતિમ બાકી):</span>
                 <strong className="font-black text-sm">{formatCurrency(selectedBill.final_pending_amount)}</strong>
               </div>
             </div>
